@@ -1,19 +1,23 @@
 # Prime ML
 
-The question: would a ML model be any good a at predicting prime numbers?
+## The question
+Would a ML model be any good a at predicting prime numbers?
 
 The training set will consist of numbers with an upper limit of 20 digits and be able to predict
 numbers with 21 digits.
 
-The upper test limit is:
-```
-09999999999999999999
-```
+The lower training boundary will be `00000000000000000003`
+upper training limit is `09999999999999999999` but should be able to predict up to `99999999999999999999`.
 
+## Successful model
+A successful model should predict:
+1. Numbers ending with `0, 2, 4, 5, 6, 8` are not prime.
+
+## Encoding
 The number will be:
 1. Converted to a character array.
-1. Encoded index.
-1. Then each character will be converted to a one hot array.
+1. Encoded by character index.
+1. Then each encoded character will be converted to a one hot array.
 
 The characters we will encode are:
 ```
