@@ -74,3 +74,7 @@ The final output will be a binary classification of:
 [0] # not prime
 [1] # is prime 
 ```
+
+## Training Set
+For the training set, we will use all the primes between the upper an lower bounds,
+mixed with random numbers that are not prime. 
