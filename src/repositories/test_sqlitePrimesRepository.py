@@ -1,7 +1,10 @@
 import os
 from unittest import TestCase
 
-from src.repositories.SqlitePrimesRepository import SqlitePrimesRepository
+import sympy
+
+from src.repositories.SqlitePrimesRepository import SqlitePrimesRepository, NotEnoughPrimesException, \
+    IsLessThan3Exception, PrimeAlreadySavedException, NotAPrimeException
 
 
 class TestSqlitePrimesRepository(TestCase):
@@ -27,8 +30,18 @@ class TestSqlitePrimesRepository(TestCase):
 
     def test_save(self):
         repo = SqlitePrimesRepository()
-        repo.save(3)
-        repo.save(5)
+        for number in range(0, 200000):
+            try:
+                repo.save(number)
+                print('Adding number {0}'.format(number))
+            except NotAPrimeException as e:
+                print(e.message)
+            except PrimeAlreadySavedException as e:
+                print(e.message)
+            except NotEnoughPrimesException as e:
+                print(e.message)
+            except IsLessThan3Exception as e:
+                print(e.message)
         repo.close()
 
     def test_count(self):
@@ -36,4 +49,18 @@ class TestSqlitePrimesRepository(TestCase):
         count = repo.count()
         print(f"Found {count} primes.")
         self.assertTrue(count > 0)
+        repo.close()
+
+    def test_is_prime(self):
+        repo = SqlitePrimesRepository()
+        for number in range(0, 200):
+            try:
+                check_fast = repo.is_prime(number)
+                check_slow = sympy.isprime(number)
+                print(number, check_fast, check_slow)
+                self.assertEqual(check_fast, check_slow)
+            except NotEnoughPrimesException as e:
+                print(e.message)
+            except IsLessThan3Exception as e:
+                print(e.message)
         repo.close()
