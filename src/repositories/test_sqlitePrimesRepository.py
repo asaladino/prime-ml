@@ -30,10 +30,10 @@ class TestSqlitePrimesRepository(TestCase):
 
     def test_save(self):
         repo = SqlitePrimesRepository()
-        for number in range(0, 200000):
+        for number in range(0, 200):
             try:
                 repo.save(number)
-                print('Adding number {0}'.format(number))
+                print(f'Adding number {number}')
             except NotAPrimeException as e:
                 print(e.message)
             except PrimeAlreadySavedException as e:
@@ -63,4 +63,10 @@ class TestSqlitePrimesRepository(TestCase):
                 print(e.message)
             except IsLessThan3Exception as e:
                 print(e.message)
+        repo.close()
+
+    def test_find_all_less(self):
+        repo = SqlitePrimesRepository()
+        found = repo.find_all_less(100)
+        print(found)
         repo.close()

@@ -14,7 +14,7 @@ class SqlitePrimesRepository:
 
     def create_table(self):
         cursor = self.db.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS primes(id INTEGER PRIMARY KEY, prime INTEGER UNIQUE)')
+        cursor.execute('CREATE TABLE IF NOT EXISTS primes(id INTEGER PRIMARY KEY, prime TEXT UNIQUE)')
         self.db.commit()
 
     def is_prime(self, number):
@@ -31,12 +31,6 @@ class SqlitePrimesRepository:
         square = math.sqrt(number)
         cursor = self.db.cursor()
 
-        # Check if there are enough primes in the database.
-        cursor.execute('SELECT COUNT(*) FROM primes WHERE prime > ?', (square,))
-        count = cursor.fetchone()[0]
-        if count == 0:
-            raise NotEnoughPrimesException()
-
         # Check for the initial primes.
         if number < 10 and (number == 3 or number == 5 or number == 7):
             return True
@@ -45,9 +39,19 @@ class SqlitePrimesRepository:
         if last == 0 or last == 2 or last == 4 or last == 5 or last == 6 or last == 8:
             return False
 
-        cursor.execute('SELECT prime FROM primes WHERE prime <= ?', (square,))
+        # Prime already exists
+        if self.find(number) is None:
+            return False
+
+        # Check if there are enough primes in the database.
+        cursor.execute('SELECT COUNT(*) FROM primes WHERE CAST(prime as INTEGER) > ?', (square,))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            return False
+
+        cursor.execute('SELECT prime FROM primes WHERE CAST(prime as INTEGER) <= ?', (square,))
         for entry in cursor:
-            if number % entry[0] == 0:
+            if number % int(entry[0]) == 0:
                 return False
         return True
 
@@ -66,8 +70,13 @@ class SqlitePrimesRepository:
         cursor.execute('SELECT prime FROM primes WHERE prime=?', (number,))
         prime = cursor.fetchone()
         if prime is not None:
-            return prime[0]
+            return int(prime[0])
         return prime
+
+    def find_all_less(self, number):
+        cursor = self.db.cursor()
+        cursor.execute('SELECT prime FROM primes WHERE CAST(prime as INTEGER) <= ?', (number,))
+        return cursor.fetchall()
 
     def save(self, number):
         try:
