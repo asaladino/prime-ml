@@ -1,33 +1,39 @@
 import random
 
-import sympy
+from math import ceil
 
 from src.repositories.SqlitePrimesRepository import SqlitePrimesRepository
+from src.utilities.converter import Converter
 
 
 class Generator:
 
     def __init__(self):
-        self.sqlite_primes_repo = SqlitePrimesRepository()
+        self.repo = SqlitePrimesRepository()
+        self.converter = Converter()
 
-    @staticmethod
-    def find_all_primes_between(start, end):
-        """
-        Find all the primes in a specified range.
-        :param start: number
-        :param end: number
-        :return: a list of primes in that range.
-        """
-        primes = []
-        for num in range(start, end):
-            if sympy.isprime(num):
-                primes.append(num)
-        return primes
+    def build_sample(self, sample_size, max_value):
+        x = []
+        y = []
+        for i in range(ceil(sample_size / 2)):
+            non_prime = self.random_non_prime(3, max_value)
+            non_prime_string = self.converter.number_to_string(non_prime)
+            x.append(self.converter.string_to_one_hot(non_prime_string))
+            y.append([0])
+            prime = self.random_prime(3, max_value)
+            prime_string = self.converter.number_to_string(prime)
+            x.append(self.converter.string_to_one_hot(prime_string))
+            y.append([1])
+        return x, y
 
-    def random_none_prime_number(self, lower, upper):
+    def random_non_prime(self, lower, upper):
         number = random.randint(lower, upper)
-        is_prime = self.sqlite_primes_repo.find(number)
+        is_prime = self.repo.find(number)
         if is_prime is None:
             return number
         else:
-            self.random_none_prime_number(lower, upper)
+            return self.random_non_prime(lower, upper)
+
+    def random_prime(self, lower, upper):
+        number = random.randint(lower, upper)
+        return int(self.repo.find_all_less(number).fetchone()[0])

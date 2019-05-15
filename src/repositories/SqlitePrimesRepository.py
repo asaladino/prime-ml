@@ -13,6 +13,10 @@ class SqlitePrimesRepository:
         self.create_table()
 
     def create_table(self):
+        """
+        Create the table in the database if it doesn't exist.
+        :return:
+        """
         cursor = self.db.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS primes(id INTEGER PRIMARY KEY, prime TEXT UNIQUE)')
         self.db.commit()
@@ -24,8 +28,8 @@ class SqlitePrimesRepository:
         :return: True if it is prime.
         """
         # Check for min value.
-        if number < 3:
-            raise IsLessThan3Exception()
+        if number < 2:
+            raise IsLessThan2Exception()
         num_str = str(number)
         last = int(num_str[len(num_str) - 1])
         square = math.sqrt(number)
@@ -40,7 +44,7 @@ class SqlitePrimesRepository:
             return False
 
         # Prime already exists
-        if self.find(number) is None:
+        if self.find(number) is not None:
             return False
 
         # Check if there are enough primes in the database.
@@ -49,6 +53,7 @@ class SqlitePrimesRepository:
         if count == 0:
             return False
 
+        # We only need primes less than the square.
         cursor.execute('SELECT prime FROM primes WHERE CAST(prime as INTEGER) <= ?', (square,))
         for entry in cursor:
             if number % int(entry[0]) == 0:
@@ -56,6 +61,10 @@ class SqlitePrimesRepository:
         return True
 
     def count(self):
+        """
+        How many primes have been saved.
+        :return: the count.
+        """
         cursor = self.db.cursor()
         cursor.execute('SELECT COUNT(*) FROM primes')
         return cursor.fetchone()[0]
@@ -66,6 +75,11 @@ class SqlitePrimesRepository:
         return cursor.fetchall()
 
     def find(self, number):
+        """
+        Find the prime number.
+        :param number: to look for.
+        :return: the prime number if it has been saved or None.
+        """
         cursor = self.db.cursor()
         cursor.execute('SELECT prime FROM primes WHERE prime=?', (number,))
         prime = cursor.fetchone()
@@ -74,11 +88,32 @@ class SqlitePrimesRepository:
         return prime
 
     def find_all_less(self, number):
+        """
+        Find all primes less than a specific number.
+        :param number: to look for.
+        :return: list of all the primes less than that number.
+        """
         cursor = self.db.cursor()
-        cursor.execute('SELECT prime FROM primes WHERE CAST(prime as INTEGER) <= ?', (number,))
-        return cursor.fetchall()
+        cursor.execute(
+            'SELECT prime FROM primes WHERE CAST(prime as INTEGER) <= ? ORDER BY CAST(prime as INTEGER) DESC',
+            (number,))
+        return cursor
+
+    def count_all_less(self, number):
+        """
+        Count all primes less than a specific number.
+        :param number: to look for.
+        :return: the number of all the primes less than that number.
+        """
+        cursor = self.db.cursor()
+        cursor.execute('SELECT COUNT(prime) FROM primes WHERE CAST(prime as INTEGER) <= ?', (number,))
+        return cursor.fetchone()[0]
 
     def save(self, number):
+        """
+        Try to save the number if it is prime.
+        :param number: to save.
+        """
         try:
             if self.is_prime(number):
                 cursor = self.db.cursor()
@@ -89,7 +124,10 @@ class SqlitePrimesRepository:
         except sqlite3.IntegrityError:
             raise PrimeAlreadySavedException
 
-    def close(self):
+    def __del__(self):
+        """
+        Close the database.
+        """
         self.db.close()
 
 
@@ -107,11 +145,11 @@ class PrimeAlreadySavedException(Exception):
         super(PrimeAlreadySavedException, self).__init__(self.message)
 
 
-class IsLessThan3Exception(Exception):
+class IsLessThan2Exception(Exception):
 
     def __init__(self):
         self.message = 'Only numbers greater than 2.'
-        super(IsLessThan3Exception, self).__init__(self.message)
+        super(IsLessThan2Exception, self).__init__(self.message)
 
 
 class NotEnoughPrimesException(Exception):

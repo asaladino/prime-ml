@@ -77,4 +77,6 @@ The final output will be a binary classification of:
 
 ## Training Set
 For the training set, we will use all the primes between the upper an lower bounds,
-mixed with random numbers that are not prime. 
+mixed with random numbers that are not prime.
+
+https://primes.utm.edu/howmany.html 

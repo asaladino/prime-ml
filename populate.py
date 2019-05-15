@@ -3,13 +3,13 @@ import sys
 import time
 
 from src.repositories.SqlitePrimesRepository import SqlitePrimesRepository, NotAPrimeException, \
-    PrimeAlreadySavedException, NotEnoughPrimesException, IsLessThan3Exception
+    PrimeAlreadySavedException, NotEnoughPrimesException, IsLessThan2Exception
 from src.utilities.text_utility import text_out
 
 repo = SqlitePrimesRepository()
-upper_limit = 30000000
+upper_limit = 10000000
 start_time = time.time()
-print(f"Current number of primes found: {str(repo.count())}")
+print(f"Current number of primes found: {repo.count()}")
 repo = SqlitePrimesRepository()
 for number in range(0, upper_limit):
     try:
@@ -22,9 +22,9 @@ for number in range(0, upper_limit):
         text_out(e.message)
     except NotEnoughPrimesException as e:
         text_out(e.message)
-    except IsLessThan3Exception as e:
+    except IsLessThan2Exception as e:
         text_out(e.message)
+sys.stdout.write('\n')
+print(f"Found {repo.count()} primes in {time.time() - start_time} seconds.")
+sys.stdout.write('\n')
 repo.close()
-sys.stdout.write('\n')
-print(f"--- {time.time() - start_time} seconds ---")
-sys.stdout.write('\n')

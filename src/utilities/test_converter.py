@@ -10,7 +10,7 @@ class TestConverter(TestCase):
         number = 1234720998
         converter = Converter()
         number_as_string = converter.number_to_string(number)
-        self.assertTrue(len(number_as_string) == converter.maxNumberLength)
+        self.assertTrue(len(number_as_string) == converter.max_number_length)
         self.assertTrue(number_as_string.endswith(str(number)))
 
     def test_to_one_hot(self):
@@ -44,3 +44,8 @@ class TestConverter(TestCase):
                 self.assertTrue(result[0] == 1)
             else:
                 self.assertTrue(result[0] == 0)
+
+    def test_max_value(self):
+        converter = Converter()
+        max_value = converter.max_value()
+        print(f"Max value {max_value}")

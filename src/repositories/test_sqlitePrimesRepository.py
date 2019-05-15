@@ -4,7 +4,7 @@ from unittest import TestCase
 import sympy
 
 from src.repositories.SqlitePrimesRepository import SqlitePrimesRepository, NotEnoughPrimesException, \
-    IsLessThan3Exception, PrimeAlreadySavedException, NotAPrimeException
+    IsLessThan2Exception, PrimeAlreadySavedException, NotAPrimeException
 
 
 class TestSqlitePrimesRepository(TestCase):
@@ -12,13 +12,11 @@ class TestSqlitePrimesRepository(TestCase):
     def test_init(self):
         repo = SqlitePrimesRepository()
         self.assertTrue(os.path.exists(repo.file))
-        repo.close()
 
     def test_find_all(self):
         repo = SqlitePrimesRepository()
         primes = repo.find_all()
         self.assertTrue(len(primes) > 0)
-        repo.close()
 
     def test_find(self):
         repo = SqlitePrimesRepository()
@@ -26,7 +24,6 @@ class TestSqlitePrimesRepository(TestCase):
         self.assertTrue(prime == 3)
         prime = repo.find(4)
         self.assertIsNone(prime)
-        repo.close()
 
     def test_save(self):
         repo = SqlitePrimesRepository()
@@ -40,9 +37,8 @@ class TestSqlitePrimesRepository(TestCase):
                 print(e.message)
             except NotEnoughPrimesException as e:
                 print(e.message)
-            except IsLessThan3Exception as e:
+            except IsLessThan2Exception as e:
                 print(e.message)
-        repo.close()
 
     def test_count(self):
         repo = SqlitePrimesRepository()
@@ -61,12 +57,16 @@ class TestSqlitePrimesRepository(TestCase):
                 self.assertEqual(check_fast, check_slow)
             except NotEnoughPrimesException as e:
                 print(e.message)
-            except IsLessThan3Exception as e:
+            except IsLessThan2Exception as e:
                 print(e.message)
-        repo.close()
 
     def test_find_all_less(self):
         repo = SqlitePrimesRepository()
-        found = repo.find_all_less(100)
-        print(found)
-        repo.close()
+        found = repo.find_all_less(100).fetchall()
+        print(len(found))
+
+    def test_count_all_less(self):
+        repo = SqlitePrimesRepository()
+        number = 1000000
+        found = repo.count_all_less(number)
+        print(f'Found {found} primes less than {number}')

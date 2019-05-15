@@ -3,7 +3,20 @@ import sympy
 
 class Converter:
     characters = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    maxNumberLength = 21
+    max_number_length = 7
+
+    def char_len(self):
+        return len(self.characters)
+
+    def max_value(self):
+        """
+        Find the max value based on the max_number_length
+        :return number:
+        """
+        max_value = 1
+        for multi in range(self.max_number_length - 1):
+            max_value *= 10
+        return max_value
 
     @staticmethod
     def is_number_prime_as_one_hot(number):
@@ -20,7 +33,7 @@ class Converter:
         :param number: to convert
         :return: the number as a padded string.
         """
-        return str(number).zfill(self.maxNumberLength)
+        return str(number).zfill(self.max_number_length)
 
     def string_to_one_hot(self, number):
         """
@@ -35,6 +48,10 @@ class Converter:
             empty_list[index] = 1
             new_array.append(empty_list)
         return new_array
+
+    def invert(self, one_hot):
+        value = self.one_hot_to_string(one_hot)
+        return self.string_to_number(value)
 
     def one_hot_to_string(self, one_hot):
         """
