@@ -1,6 +1,7 @@
 import random
 
 from math import ceil
+from numpy import array
 
 from src.repositories.SqlitePrimesRepository import SqlitePrimesRepository
 from src.utilities.converter import Converter
@@ -13,8 +14,8 @@ class Generator:
         self.converter = Converter()
 
     def build_sample(self, sample_size, max_value):
-        x = []
-        y = []
+        x = list()
+        y = list()
         for i in range(ceil(sample_size / 2)):
             non_prime = self.random_non_prime(3, max_value)
             non_prime_string = self.converter.number_to_string(non_prime)
@@ -24,6 +25,8 @@ class Generator:
             prime_string = self.converter.number_to_string(prime)
             x.append(self.converter.string_to_one_hot(prime_string))
             y.append([1])
+        # This is important, need to use numpy arrays.
+        x, y = array(x), array(y)
         return x, y
 
     def random_non_prime(self, lower, upper):
